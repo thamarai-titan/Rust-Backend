@@ -1,0 +1,175 @@
+
+fn main() {
+    let greet : String = String::from("new_string");
+    println!("{}",greet);
+    let char1 = greet.chars().nth(1);
+
+    match char1 {
+        Some(c) => println!("{}",c),
+        None => println!("No charcater at the index"),
+    }
+
+    println!("----------------------------");
+
+    let is_even = true;
+
+    if !is_even{
+        println!("You are eligible for voting!");   
+    }
+    else if is_even {
+        println!("You are eligible for nothing");
+    }
+    else {
+        println!("you are not eligible");
+    }
+    println!("-----------------------------");
+
+    for i in 0..10 {
+        println!("{}",i);
+    };
+
+    let sentence = String::from("say my name");
+
+    let firstletter = get_first_word(sentence);
+    println!("{}",firstletter);
+
+    let string1 = String::from("hello wolrd");
+    send_string(string1.clone());
+    println!("{}",string1);
+    
+    let mut var1 = String::from("Thamarai");
+    var1.push_str(" Manalan");
+    borrow_string(&mut var1);
+    println!("{}",var1);
+}
+
+fn borrow_string(bstr: &mut String){
+    bstr.push_str(" MCA");
+    println!("{}",bstr);
+}
+
+fn send_string(new_string: String){
+    let string3 = new_string;
+    println!("{}",string3);
+}
+
+fn get_first_word(sentence: String) -> String {
+    let mut ans = String::new();
+    for char in sentence.chars() {
+        ans.push(char);
+        if char == ' ' {
+            break;
+        }
+    }
+    return ans;
+    
+}
+
+// Struct Code Example
+struct Rect {
+    width: u32,
+    height: u32,
+}
+
+impl Rect {
+    fn answer(&self)->u32 {
+        return self.height*self.width;
+    }
+}
+
+fn main(){
+    let rect = Rect {
+        width: 12,
+        height: 12,
+    };
+    println!("{}",rect.answer());
+}
+
+Example for enum :
+
+enum Shape {
+    Circle(f32),
+    Rectangle(f32,f32),
+    Square(f32)
+}
+
+fn calculate_area(shape: Shape)-> f32{
+    match shape {
+        Shape::Circle(radius)=> 3.14*radius*radius,
+        Shape::Rectangle(width,height )=>width*height,
+        Shape::Square(side)=>side*side,
+    }
+}
+fn main(){
+    let circle = Shape::Circle(12.0);
+    println!("{}",calculate_area(circle));
+}
+
+// Example for Option
+fn main(){
+let string = String::from("help");
+let ans = find_first_letter(string);
+match ans {
+    Some(index)=>println!("{}",index),
+    None=>println!("NO VALUE"),
+}
+}
+
+fn find_first_letter(s: String)-> Option<i32>{
+    for (index,char) in s.chars().enumerate() {
+        if char == 'a'{
+            return Some(index as i32);
+        }
+    }
+    return None;
+}
+
+// Vector Example
+
+fn main(){
+let mut my_vec = Vec::new();
+my_vec.push(1);
+my_vec.push(2);
+my_vec.push(3);
+even_values(my_vec);
+}
+
+fn even_values(v: Vec<i32>){
+    for value in v.iter() {
+        if value%2 == 0 {
+            println!("{}")
+        }
+    }
+
+}
+
+// HashMap Example
+
+use std::collections::HashMap;
+
+fn convert_into_hashmap(vec: Vec<(String,i32)>) -> HashMap<String,i32> {
+    let mut result = HashMap::new();
+    for (key,value) in vec  {
+        result.insert(key, value);
+    }
+    return result;
+}
+
+
+
+fn main(){
+    let new_vector = vec![(String::from("thamarai"),82),(String::from("gokul"),20)];
+    let ans = convert_into_hashmap(new_vector);
+    print!("{:?}",ans);
+
+}
+
+// Example for the itereators , filter , map 
+
+fn main(){
+    let vec = vec![1,2,3,4,5];
+    let iterator1 = vec.iter().filter(|x| *x%2==1).map(|x| *x * 2);
+    for i in iterator1  {
+        println!("{}",i);
+    }
+}
