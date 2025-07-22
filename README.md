@@ -1,6 +1,6 @@
 # Rust-Backend
 # rust
-
+```
 // The basic actix-web server 
 
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
@@ -32,9 +32,9 @@ async fn main() -> std::io::Result<()> {
     .run()
     .await
 }
-
+```
 # The Hour-1 - Basics of Rust
-
+`
 fn main(){
 
     // The immutable variable
@@ -102,3 +102,4 @@ fn greet(name: &str){
 fn add_number(a: i32,b: i32) -> i32{
     a + b
 }
+`
