@@ -34,7 +34,7 @@ async fn main() -> std::io::Result<()> {
 }
 ```
 # The Hour-1 - Basics of Rust
-`
+```
 fn main(){
 
     // The immutable variable
@@ -102,4 +102,4 @@ fn greet(name: &str){
 fn add_number(a: i32,b: i32) -> i32{
     a + b
 }
-`
+```
