@@ -1,37 +1,75 @@
 
-use actix_web::{get,App,HttpResponse,HttpServer,Responder,web};
-use serde::Deserialize;
-// How to extract the data from the URl
+use actix_web::{App,get,post,HttpResponse,HttpServer,Responder,web};
+use serde::{Serialize,Deserialize};
+use uuid::Uuid; 
 
-// Intro to - web::Query , web::Path 
 #[derive(Deserialize)]
-struct GreetingParams {
+struct PathInfo{
+    name: String
+}
+
+#[get("/greet/{name}")]
+async fn greetwith_path(info: web::Path<PathInfo>) -> impl Responder{
+    let name = &info.name;
+    HttpResponse::Ok().body(format!("Hello {}",name))
+}
+
+#[derive(Deserialize)]
+struct QueryParams{
     name: Option<String>,
     lang: Option<String>
 }
 
-#[get("/greet_query")]
-async fn greet_query(query: web::Query<GreetingParams>) -> impl Responder {
-    let name = query.name.as_deref().unwrap_or("Guest");
-    let lang = query.lang.as_deref().unwrap_or("English");
-    HttpResponse::Ok().body(format!("Hello {} , You prefer {}",name,lang))
+#[get("/query")]
+async fn greetwith_query(info: web::Query<QueryParams>)->impl Responder{
+    let name = info.name.as_deref().unwrap_or("Guest");
+    let lang = info.lang.as_deref().unwrap_or("English");
+
+    HttpResponse::Ok().body(format!("Hello {} your choosen language is {}",name,lang))
 }
 
-#[get("greet_path/{name}")]
-async fn greet_path(query: web::Path<String>) -> impl Responder{
-    let name = query.into_inner();
-    HttpResponse::Ok().body(format!("Hello {}! ,from the parameters",name))
+// POST request
+#[derive(Deserialize,Debug)]
+struct NewItem{
+    name: String,
+    description: String,
+}
+
+#[derive(Serialize,Debug)]
+struct ResultItem{
+    id: String,
+    status: String,
+}
+
+#[post("/items")]
+
+async fn create_item(item: web::Json<NewItem>)-> impl Responder{
+    println!("Received new item {:?}",item);
+
+    let item_id = uuid::Uuid::new_v4();
+
+    let response = ResultItem{
+        id: item_id.to_string(),
+        status: "created".to_string(),
+    };
+
+    HttpResponse::Created().json(response)
+
 }
 
 #[actix_web::main]
-async fn main() -> std::io::Result<()>{
-    HttpServer::new(||{
-        App::new()
-        .service(greet_path)
-        .service(greet_query)
 
+async fn main() -> std::io::Result<()>{
+    HttpServer::new(|| {
+        App::new()
+        .service(greetwith_path)
+        .service(greetwith_query)
+        .service(create_item)
     })
     .bind("127.0.0.1:8080")?
     .run()
     .await
 }
+
+
+
