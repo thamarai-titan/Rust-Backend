@@ -1,6 +1,6 @@
 use std::{sync::Mutex};
 
-use actix_web::{App,web,get,post,HttpResponse,HttpServer,Responder};
+use actix_web::{App,web,HttpResponse,HttpServer,Responder};
 use serde::{Deserialize,Serialize};
 use uuid::Uuid;
 
@@ -33,12 +33,9 @@ async fn get_todo_by_id(data:web::Data<AppState>,path:web::Path<String>)->impl R
     let id = path.into_inner();
     let todos = data.todos.lock().unwrap();
 
-    if let Some(todo) = todos.iter().find(|todo|  todo.id == id){
-        web::Json(todo.clone())
-    }
-    else {
-        web::Json(format!("The todo not Found"))
-    }
+    let todo = todos.iter().find(|todo|  todo.id == id).cloned();
+    web::Json(todo)
+   
 }
 
 
