@@ -2,6 +2,7 @@ use std::{sync::Mutex};
 
 use actix_web::{App,web,HttpResponse,HttpServer,Responder};
 use serde::{Deserialize,Serialize};
+use serde_json::json;
 use uuid::Uuid;
 
 struct AppState{
@@ -56,6 +57,33 @@ async fn create_todo(data:web::Data<AppState>,new_todo: web::Json<NewTodo>)-> im
 
 }
 
+async fn delete_todo_id(data: web::Data<AppState>,path:web::Path<String>)->impl Responder{
+    let id = path.into_inner();
+    let mut todos = data.todos.lock().unwrap();
+    if let Some(value) = todos.iter().position(|todo| todo.id == id) {
+        todos.swap_remove(value);
+        HttpResponse::Ok().body("todo was deleted")
+    }
+    else {
+        HttpResponse::NotFound().body("the todo was not found")
+    }
+}
+
+async fn modify_todo(data: web::Data<AppState>,path:web::Path<String>)->impl Responder{
+    let id = path.into_inner();
+    let mut todos = data.todos.lock().unwrap();
+    if let Some(val) =todos.iter_mut().find(|todo| todo.id==id)  {
+        val.todo = "its joined".to_string();
+        val.description = Some("new description".to_string());
+        
+        HttpResponse::Ok().json(val)
+    }
+    else{
+        HttpResponse::NotFound().body("There is no todo")
+    }
+}
+
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()>{
     let app_state = web::Data::new(AppState{
@@ -68,7 +96,10 @@ async fn main() -> std::io::Result<()>{
         .service(web::resource("/todos")
                 .route(web::post().to(create_todo))
                 .route(web::get().to(get_all_todo)))
-        .service(web::resource("/todos/{id}").route(web::get().to(get_todo_by_id)))
+        .service(web::resource("/todos/{id}")
+                .route(web::get().to(get_todo_by_id))
+                .route(web::delete().to(delete_todo_id))
+                .route(web::patch().to(modify_todo)))
     })
     .bind("127.0.0.1:8080")?
     .run()
