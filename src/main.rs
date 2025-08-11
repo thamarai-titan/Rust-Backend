@@ -1,9 +1,8 @@
 use std::{sync::Mutex};
-
 use actix_web::{App,web,HttpResponse,HttpServer,Responder};
 use serde::{Deserialize,Serialize};
-use serde_json::json;
 use uuid::Uuid;
+use actix_cors::Cors;
 
 struct AppState{
     todos: Mutex<Vec<TodoItem>>
@@ -69,20 +68,18 @@ async fn delete_todo_id(data: web::Data<AppState>,path:web::Path<String>)->impl 
     }
 }
 
-async fn modify_todo(data: web::Data<AppState>,path:web::Path<String>)->impl Responder{
+async fn modify_todo(data: web::Data<AppState>,path:web::Path<String>,new_todo: web::Json<NewTodo>)->impl Responder{
     let id = path.into_inner();
     let mut todos = data.todos.lock().unwrap();
     if let Some(val) =todos.iter_mut().find(|todo| todo.id==id)  {
-        val.todo = "its joined".to_string();
-        val.description = Some("new description".to_string());
-        
+        val.todo = new_todo.todo.clone();
+        val.description = new_todo.description.clone();
         HttpResponse::Ok().json(val)
     }
     else{
         HttpResponse::NotFound().body("There is no todo")
     }
 }
-
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()>{
@@ -92,6 +89,7 @@ async fn main() -> std::io::Result<()>{
 
     HttpServer::new(move || {
         App::new()
+        .wrap(Cors::default().allow_any_header().allow_any_method().allow_any_origin())
         .app_data(app_state.clone())
         .service(web::resource("/todos")
                 .route(web::post().to(create_todo))
